@@ -39,8 +39,9 @@ This project aims to provide a portable, efficient, and secure personal cloud in
 ---
 
 ##  Folder Structure
-s
+
 nextcloud-infra/
+
 ├── .env
 ├── docker-compose.yml
 ├── config/
@@ -62,6 +63,7 @@ nextcloud-infra/
 
 1. Clone this repository:
 
+```bash
 git clone https://github.com/Sencrzz29/nextcloud-infra.git
 cd nextcloud-infra
 
@@ -71,6 +73,7 @@ cd nextcloud-infra
 
 Edit .env file with your desired config:
 
+```bash
 NEXTCLOUD_PORT=8080
 NEXTCLOUD_DATA=/mnt/nextcloud-data
 MYSQL_ROOT_PASSWORD=your_root_pass
@@ -101,3 +104,16 @@ Password: (set during web setup)
 -Add HTTPS via Caddy or Nginx
 -Automate backups
 -Create a systemd unit to auto-mount the HDD
+
+---
+
+
+---
+
+### ✍️ How to Apply This
+
+In your WSL terminal:
+
+```bash
+nano README.md
+
