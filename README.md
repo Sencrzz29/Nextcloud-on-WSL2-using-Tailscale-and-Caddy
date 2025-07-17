@@ -66,6 +66,7 @@ nextcloud-infra/
 ```bash
 git clone https://github.com/Sencrzz29/nextcloud-infra.git
 cd nextcloud-infra
+```
 
 ---
 
@@ -80,6 +81,7 @@ MYSQL_ROOT_PASSWORD=your_root_pass
 MYSQL_PASSWORD=your_db_pass
 MYSQL_DATABASE=nextcloud
 MYSQL_USER=nextcloud
+```
 
 ---
 
