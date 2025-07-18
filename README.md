@@ -38,7 +38,7 @@ cd Nextcloud-on-WSL2-using-Tailscale-and-Caddy
 
 ---
 
-2. Bring up Docker containers
+### 2. Bring up Docker containers
 
 ```bash
 sudo docker compose up -d
@@ -59,7 +59,7 @@ Default ports:
 
 ---
 
-3. Connect to Tailscale
+### 3. Connect to Tailscale
 
 Install and login:
 
@@ -72,7 +72,7 @@ Ensure MagicDNS is enabled in the Tailscale admin panel. This gives you a .ts.ne
 
 ---
 
-4. Configure Caddy for HTTPS reverse proxy
+### 4. Configure Caddy for HTTPS reverse proxy
 
 Update your /etc/caddy/Caddyfile:
 
@@ -99,7 +99,7 @@ sudo systemctl restart caddy
 
 ---
 
-5. Add domain to Nextcloud's trusted_domains
+### 5. Add domain to Nextcloud's trusted_domains
 
 Inside the Nextcloud container:
 
@@ -135,18 +135,14 @@ https://<your-magicdns-name>.ts.net
 
 ## File Structure
 
-.
-├── docker-compose.yml
-├── Caddyfile
-├── Screenshot 2025-07-19 031959-1.png
-└── README.md
+
+    ├── docker-compose.yml
+    ├── Caddyfile
+    ├── Screenshot 2025-07-19 031959-1.png
+    └── README.md
 
 ## TODO
 
     Optional: Integrate fail2ban / auth hardening
 
     Optional: Automatic volume backup scripts
-
-## Author
-
-Maintained by Sujeet
