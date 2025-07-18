@@ -2,7 +2,7 @@
 
 A self-hosted, private cloud storage solution running Nextcloud in Docker on Windows using WSL2, securely exposed with Tailscale and TLS via Caddy.
 
-![Nextcloud UI Screenshot](./Screenshot%202025-07-19%20031959-1.png)
+![Nextcloud UI Screenshot](./nextcloud-ui.png)
 
 ---
 
