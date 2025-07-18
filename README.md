@@ -1,121 +1,152 @@
-# nextcloud-infra
+# Nextcloud on WSL2 using Tailscale and Caddy
 
-A self-hosted private cloud setup using **Nextcloud** on **WSL2**, backed by **Docker Compose**, with persistent storage on an **external HDD**. This setup is designed to run on a Windows machine with WSL2 and is accessible across devices via **Tailscale + MagicDNS**.
+A self-hosted, private cloud storage solution running Nextcloud in Docker on Windows using WSL2, securely exposed with Tailscale and TLS via Caddy.
 
----
-
-##  Overview
-
-This project aims to provide a portable, efficient, and secure personal cloud infrastructure for storing and syncing files. It uses:
-
-- WSL2 (Ubuntu)
-- Docker Compose
-- Nextcloud
-- MariaDB
-- External HDD for persistent storage
-- Tailscale (planned) for remote access via MagicDNS
-
----
-
-##  Tech Stack
-
-- **OS**: Windows 10/11 with WSL2 (Ubuntu)
-- **Containerization**: Docker Engine (inside WSL)
-- **App**: [Nextcloud](https://nextcloud.com/)
-- **Database**: [MariaDB 10.6](https://mariadb.org/)
-- **Networking (Planned)**: Tailscale + MagicDNS
-- **Storage**: Mounted ext4 partition on external HDD
+![Nextcloud UI Screenshot](./Screenshot%202025-07-19%20031959-1.png)
 
 ---
 
 ##  Features
 
-- Persistent data on external disk (safe from host system resets)
-- Modular Docker Compose setup
-- Environment variable support via `.env`
-- Easy to scale or migrate
-- Future: Access from anywhere via Tailscale
+- Fully local Nextcloud instance (via Docker in WSL2)
+- Secure remote access with **Tailscale** + **MagicDNS**
+- HTTPS with **TLS certificates** auto-managed by Tailscale
+- Reverse proxy via **Caddy**, configured for TLS passthrough
+- External drive mounting for persistent Nextcloud storage
 
 ---
 
-##  Folder Structure
+##  Tech Stack
 
-nextcloud-infra/
+- **Nextcloud** (via Docker)
+- **MariaDB** (Nextcloud backend)
+- **WSL2** (Ubuntu running on Windows)
+- **Docker Desktop for Windows**
+- **Tailscale** with MagicDNS
+- **Caddy web server** for reverse proxy + TLS
 
-├── .env
+---
+
+##  Setup Overview
+
+### 1. Clone this repository
+
+```bash
+git clone https://github.com/Sencrzz29/Nextcloud-on-WSL2-using-Tailscale-and-Caddy.git
+cd Nextcloud-on-WSL2-using-Tailscale-and-Caddy
+```
+
+---
+
+2. Bring up Docker containers
+
+```bash
+sudo docker compose up -d
+```
+
+This starts:
+
+    nextcloud-app (web frontend)
+
+    nextcloud-db (MariaDB backend)
+
+
+Default ports:
+
+    Nextcloud: localhost:8080
+
+    MariaDB: internal-only (3306)
+
+---
+
+3. Connect to Tailscale
+
+Install and login:
+
+```bash
+sudo apt install tailscale
+sudo tailscale up
+```
+
+Ensure MagicDNS is enabled in the Tailscale admin panel. This gives you a .ts.net domain (e.g., yourmachine.ts.net).
+
+---
+
+4. Configure Caddy for HTTPS reverse proxy
+
+Update your /etc/caddy/Caddyfile:
+
+```caddy
+https://<your-magicdns-name>.ts.net {
+    tls /var/lib/tailscale/certs/<your-magicdns-name>.ts.net.crt /var/lib/tailscale/certs/<your-magicdns-name>.ts.net.key
+
+    reverse_proxy localhost:8080
+}
+```
+
+Set file permissions so Caddy can read the TLS certs:
+
+```bash
+sudo setfacl -m u:caddy:rx /var/lib/tailscale/certs
+sudo setfacl -m u:caddy:r /var/lib/tailscale/certs/*
+```
+
+Then start Caddy:
+
+```bash
+sudo systemctl restart caddy
+```
+
+---
+
+5. Add domain to Nextcloud's trusted_domains
+
+Inside the Nextcloud container:
+
+```bash
+sudo docker exec -it nextcloud-app bash
+
+nano /var/www/html/config/config.php
+```
+
+Update the 'trusted_domains' block:
+
+```php
+'trusted_domains' => 
+  array (
+    0 => '<your-magicdns-name>.ts.net',
+    1 => 'localhost',
+  ),
+```
+
+Save and exit.
+
+Access from any device on your Tailscale network, open:
+
+https://<your-magicdns-name>.ts.net
+
+## Notes
+
+    Caddy must run with permissions to access /var/lib/tailscale/certs.
+
+    App passwords / QR logins are not included — standard web auth is used.
+
+    Screenshot has been sanitized to avoid leaking private info.
+
+## File Structure
+
+.
 ├── docker-compose.yml
-├── config/
-├── db/
-└── nextcloud/
+├── Caddyfile
+├── Screenshot 2025-07-19 031959-1.png
+└── README.md
 
+## TODO
 
-- `config/`: Custom configurations (future use)
-- `db/`: MariaDB volume (optional bind mount in future)
-- `nextcloud/`: Local Nextcloud config (future use)
-- `.env`: Environment variables
-- `docker-compose.yml`: Main deployment file
+    Optional: Integrate fail2ban / auth hardening
 
----
+    Optional: Automatic volume backup scripts
 
-##  Installation
+## Author
 
-> Prerequisite: Docker working inside WSL2, external HDD mounted at `/mnt/nextcloud-data`
-
-1. Clone this repository:
-
-```bash
-git clone https://github.com/Sencrzz29/nextcloud-infra.git
-cd nextcloud-infra
-```
-
----
-
-## Set environment variables:
-
-Edit .env file with your desired config:
-
-```bash
-NEXTCLOUD_PORT=8080
-NEXTCLOUD_DATA=/mnt/nextcloud-data
-MYSQL_ROOT_PASSWORD=your_root_pass
-MYSQL_PASSWORD=your_db_pass
-MYSQL_DATABASE=nextcloud
-MYSQL_USER=nextcloud
-```
-
----
-
-## Launch Nextcloud:
-
-docker compose up -d
-
-Visit http://localhost:8080 in your browser and complete the setup.
-
----
-
-## Admin Account
-
-Admin username: (set during web setup)
-Password: (set during web setup)
-
----
-
-## TODO / Future Plans
-
--Add Tailscale + MagicDNS for remote access
--Add HTTPS via Caddy or Nginx
--Automate backups
--Create a systemd unit to auto-mount the HDD
-
----
-
-
----
-
-### ✍️ How to Apply This
-
-In your WSL terminal:
-
-```bash
-nano README.md
-
+Maintained by Sujeet
